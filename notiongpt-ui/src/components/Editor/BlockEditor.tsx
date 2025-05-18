@@ -14,10 +14,17 @@ function BlockEditor({ value, onChange, editor }: Props) {
   const renderLeaf = useCallback((props: any) => {
     const { attributes, children, leaf } = props;
     let el = children;
+
     if (leaf.bold) el = <strong>{el}</strong>;
     if (leaf.italic) el = <em>{el}</em>;
+    if (leaf.underline) el = <u>{el}</u>;
+    if (leaf.strikethrough) el = <s>{el}</s>;
+    if (leaf.code)
+      el = <code className="bg-gray-200 px-1 rounded text-sm">{el}</code>;
+
     return <span {...attributes}>{el}</span>;
   }, []);
+  
 
   return (
     <div className="h-full w-full p-6 bg-white overflow-auto border-l">
