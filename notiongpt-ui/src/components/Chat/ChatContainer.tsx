@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import ChatList from './ChatList';
-import ChatInput from './ChatInput';
+import { useState } from "react";
+import ChatList from "./ChatList";
+import ChatInput from "./ChatInput";
 
 export interface ChatMessage {
   id: number;
@@ -8,7 +8,11 @@ export interface ChatMessage {
   text: string;
 }
 
-function ChatContainer() {
+interface Props {
+  onNewAIMessage?: (text: string) => void;
+}
+
+function ChatContainer({ onNewAIMessage }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 1, role: 'user', text: 'What is AI?' },
     { id: 2, role: 'ai', text: 'AI stands for Artificial Intelligence...' },
@@ -31,6 +35,7 @@ function ChatContainer() {
 
     setTimeout(() => {
       setMessages((prev) => [...prev, aiMsg]);
+      onNewAIMessage?.(aiMsg.text);
     }, 1000);
   };
 
