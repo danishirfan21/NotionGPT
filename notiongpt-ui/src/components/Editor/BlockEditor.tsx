@@ -46,13 +46,6 @@ function BlockEditor() {
           />
         </Slate>
       )}
-      {/* <Slate editor={editor} value={value} onChange={setValue}> */}
-      {/* <Editable
-          renderElement={renderElement}
-          placeholder="Type something..."
-          className="outline-none min-h-[300px] text-gray-800"
-        />
-      </Slate> */}
     </div>
   );
 }
