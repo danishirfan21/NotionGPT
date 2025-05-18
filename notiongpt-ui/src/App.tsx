@@ -2,12 +2,27 @@ import ChatContainer from './components/Chat/ChatContainer';
 import BlockEditor from './components/Editor/BlockEditor';
 import { useState, useMemo } from 'react';
 import { createEditor } from 'slate';
-
 import type { BaseEditor, Descendant } from 'slate';
 import { withReact, type ReactEditor } from 'slate-react';
 
-type CustomElement = { type: 'paragraph'; children: CustomText[] };
-type CustomText = { text: string };
+
+type CustomText = {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  highlight?: boolean;
+  superscript?: boolean;
+  subscript?: boolean;
+  quote?: boolean;
+  code?: boolean;
+};
+
+type ParagraphElement = { type: 'paragraph'; children: CustomText[] };
+type CodeBlockElement = { type: 'code-block'; children: CustomText[] };
+
+type CustomElement = ParagraphElement | CodeBlockElement;
 
 declare module 'slate' {
   interface CustomTypes {

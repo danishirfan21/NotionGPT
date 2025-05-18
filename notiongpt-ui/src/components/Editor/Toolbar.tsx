@@ -1,21 +1,28 @@
 import { useSlate } from 'slate-react';
 import type { MarkFormat } from './MarkFormats';
-import { isMarkActive, toggleMark } from './marks';
+import { cn } from '../../lib/utils';
+import { isMarkActive, toggleMark } from './Marks';
 
-const FORMAT_OPTIONS: { label: string; format: MarkFormat }[] = [
-  { label: 'Bold', format: 'bold' },
-  { label: 'Italic', format: 'italic' },
-  { label: 'Underline', format: 'underline' },
-  { label: 'Strikethrough', format: 'strikethrough' },
-  { label: 'Code', format: 'code' },
+
+const MARKS: { format: MarkFormat; label: string }[] = [
+  { format: 'bold', label: 'Bold' },
+  { format: 'italic', label: 'Italic' },
+  { format: 'underline', label: 'Underline' },
+  { format: 'strikethrough', label: 'Strikethrough' },
+  { format: 'highlight', label: 'Highlight' },
+  { format: 'superscript', label: 'Sup' },
+  { format: 'subscript', label: 'Sub' },
+  { format: 'quote', label: 'Quote' },
+  { format: 'code', label: 'Code' },
 ];
 
-const Toolbar = () => {
+
+export default function Toolbar() {
   const editor = useSlate();
 
   return (
-    <div className="mb-2 flex flex-wrap gap-2">
-      {FORMAT_OPTIONS.map(({ format, label }) => {
+    <div className="flex gap-2 mb-4 flex-wrap">
+      {MARKS.map(({ format, label }) => {
         const active = isMarkActive(editor, format);
         return (
           <button
@@ -24,9 +31,12 @@ const Toolbar = () => {
               e.preventDefault();
               toggleMark(editor, format);
             }}
-            className={`px-2 py-1 rounded border ${
-              active ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
-            }`}
+            className={cn(
+              'px-2 py-1 border rounded text-sm',
+              active
+                ? 'bg-black text-white'
+                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+            )}
           >
             {label}
           </button>
@@ -34,6 +44,4 @@ const Toolbar = () => {
       })}
     </div>
   );
-};
-
-export default Toolbar;
+}
