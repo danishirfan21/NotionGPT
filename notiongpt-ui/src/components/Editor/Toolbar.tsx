@@ -1,32 +1,30 @@
-import React from 'react';
-import { Editor } from 'slate';
-import { toggleMark } from './marks';
+import { useSlate } from 'slate-react';
+import { isMarkActive, toggleMark } from './marks';
 
-interface Props {
-  editor: Editor;
-}
+const Toolbar = () => {
+  const editor = useSlate();
 
-const Toolbar = ({ editor }: Props) => {
+  const Button = ({ format, label }: { format: string; label: string }) => {
+    const active = isMarkActive(editor, format);
+    return (
+      <button
+        onMouseDown={(e) => {
+          e.preventDefault();
+          toggleMark(editor, format);
+        }}
+        className={`px-2 py-1 border rounded mr-2 ${
+          active ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
+        }`}
+      >
+        {label}
+      </button>
+    );
+  };
+
   return (
-    <div className="flex space-x-2 mb-4">
-      <button
-        className="px-2 py-1 border rounded"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          toggleMark(editor, 'bold');
-        }}
-      >
-        Bold
-      </button>
-      <button
-        className="px-2 py-1 border rounded"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          toggleMark(editor, 'italic');
-        }}
-      >
-        Italic
-      </button>
+    <div className="mb-2">
+      <Button format="bold" label="Bold" />
+      <Button format="italic" label="Italic" />
     </div>
   );
 };

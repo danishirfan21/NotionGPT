@@ -1,25 +1,34 @@
+import { useCallback } from 'react';
 import { Slate, Editable } from 'slate-react';
+import { Editor } from 'slate';
 import type { Descendant } from 'slate';
-import { renderLeaf } from './leafRenderer';
 import Toolbar from './Toolbar';
 
 interface Props {
   value: Descendant[];
   onChange: (value: Descendant[]) => void;
-  editor: any;
+  editor: Editor;
 }
 
 function BlockEditor({ value, onChange, editor }: Props) {
+  const renderLeaf = useCallback((props: any) => {
+    const { attributes, children, leaf } = props;
+    let el = children;
+    if (leaf.bold) el = <strong>{el}</strong>;
+    if (leaf.italic) el = <em>{el}</em>;
+    return <span {...attributes}>{el}</span>;
+  }, []);
+
   return (
     <div className="h-full w-full p-6 bg-white overflow-auto border-l">
       <h2 className="text-xl font-semibold mb-4">📝 Notes</h2>
-      <Toolbar editor={editor} />
       <Slate
         editor={editor}
         initialValue={value}
         key={JSON.stringify(value)}
         onChange={onChange}
       >
+        <Toolbar />
         <Editable
           renderLeaf={renderLeaf}
           placeholder="Type something..."
