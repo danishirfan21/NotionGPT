@@ -21,8 +21,22 @@ type CustomText = {
 
 type ParagraphElement = { type: 'paragraph'; children: CustomText[] };
 type CodeBlockElement = { type: 'code-block'; children: CustomText[] };
+type HeadingOne = { type: 'heading-one'; children: CustomText[] };
+type HeadingTwo = { type: 'heading-two'; children: CustomText[] };
+type HeadingThree = { type: 'heading-three'; children: CustomText[] };
+type BulletedList = { type: 'bulleted-list'; children: CustomElement[] };
+type NumberedList = { type: 'numbered-list'; children: CustomElement[] };
+type ListItem = { type: 'list-item'; children: CustomText[] };
 
-type CustomElement = ParagraphElement | CodeBlockElement;
+type CustomElement =
+  | ParagraphElement
+  | CodeBlockElement
+  | HeadingOne
+  | HeadingTwo
+  | HeadingThree
+  | BulletedList
+  | NumberedList
+  | ListItem;
 
 declare module 'slate' {
   interface CustomTypes {

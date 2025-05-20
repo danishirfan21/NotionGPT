@@ -45,6 +45,38 @@ function BlockEditor({ value, onChange, editor }: Props) {
   const renderElement = useCallback((props: RenderElementProps) => {
     const { attributes, children, element } = props;
     switch (element.type) {
+      case 'heading-one':
+        return (
+          <h1 {...attributes} className="text-3xl font-bold my-2">
+            {children}
+          </h1>
+        );
+      case 'heading-two':
+        return (
+          <h2 {...attributes} className="text-2xl font-semibold my-2">
+            {children}
+          </h2>
+        );
+      case 'heading-three':
+        return (
+          <h3 {...attributes} className="text-xl font-medium my-2">
+            {children}
+          </h3>
+        );
+      case 'bulleted-list':
+        return (
+          <ul {...attributes} className="list-disc pl-6 my-2">
+            {children}
+          </ul>
+        );
+      case 'numbered-list':
+        return (
+          <ol {...attributes} className="list-decimal pl-6 my-2">
+            {children}
+          </ol>
+        );
+      case 'list-item':
+        return <li {...attributes}>{children}</li>;
       case 'code-block':
         return (
           <pre
