@@ -94,7 +94,7 @@ function BlockEditor({ value, onChange, editor }: Props) {
   }, []);  
 
   return (
-    <div className="h-full w-full p-6 bg-white overflow-auto border-l">
+    <div className="h-full w-full p-6 bg-white overflow-auto border-l overflow-auto custom-scroll p-4 h-full">
       <h2 className="text-xl font-semibold mb-4">📝 Notes</h2>
       <Slate
         editor={editor}
