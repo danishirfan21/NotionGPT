@@ -26,39 +26,99 @@ const MARKS: {
   format: MarkFormat;
   label: string;
   icon: JSX.Element;
+  tooltip: string;
 }[] = [
-  { format: 'bold', label: 'Bold', icon: <Bold size={16} /> },
-  { format: 'italic', label: 'Italic', icon: <Italic size={16} /> },
-  { format: 'underline', label: 'Underline', icon: <Underline size={16} /> },
+  {
+    format: 'bold',
+    label: 'Bold',
+    icon: <Bold size={16} />,
+    tooltip: 'Bold (Ctrl+B)',
+  },
+  {
+    format: 'italic',
+    label: 'Italic',
+    icon: <Italic size={16} />,
+    tooltip: 'Italic (Ctrl+I)',
+  },
+  {
+    format: 'underline',
+    label: 'Underline',
+    icon: <Underline size={16} />,
+    tooltip: 'Underline (Ctrl+U)',
+  },
   {
     format: 'strikethrough',
     label: 'Strikethrough',
     icon: <Strikethrough size={16} />,
+    tooltip: 'Strikethrough (Ctrl+S)',
   },
-  { format: 'highlight', label: 'Highlight', icon: <Highlighter size={16} /> },
+  {
+    format: 'highlight',
+    label: 'Highlight',
+    icon: <Highlighter size={16} />,
+    tooltip: 'Highlight (Ctrl+H)',
+  },
   {
     format: 'superscript',
     label: 'Superscript',
     icon: <Superscript size={16} />,
+    tooltip: 'Superscript (Ctrl+Shift+P)',
   },
-  { format: 'subscript', label: 'Subscript', icon: <Subscript size={16} /> },
-  { format: 'quote', label: 'Quote', icon: <Quote size={16} /> },
-  { format: 'code', label: 'Inline Code', icon: <Code2 size={16} /> },
+  {
+    format: 'subscript',
+    label: 'Subscript',
+    icon: <Subscript size={16} />,
+    tooltip: 'Subscript (Ctrl+Shift+B)',
+  },
+  {
+    format: 'quote',
+    label: 'Quote',
+    icon: <Quote size={16} />,
+    tooltip: 'Quote (Ctrl+Shift+Q)',
+  },
+  {
+    format: 'code',
+    label: 'Inline Code',
+    icon: <Code2 size={16} />,
+    tooltip: 'Inline Code (Ctrl+K)',
+  },
 ];
 
 const BLOCKS: {
   format: BlockFormat;
   label: string;
   icon: JSX.Element;
+  tooltip: string;
 }[] = [
-  { format: 'heading-one', label: 'H1', icon: <Heading1 size={16} /> },
-  { format: 'heading-two', label: 'H2', icon: <Heading2 size={16} /> },
-  { format: 'heading-three', label: 'H3', icon: <Heading3 size={16} /> },
-  { format: 'bulleted-list', label: 'Bullet List', icon: <List size={16} /> },
+  {
+    format: 'heading-one',
+    label: 'H1',
+    icon: <Heading1 size={16} />,
+    tooltip: 'Heading 1 (Ctrl+Alt+1)',
+  },
+  {
+    format: 'heading-two',
+    label: 'H2',
+    icon: <Heading2 size={16} />,
+    tooltip: 'Heading 2 (Ctrl+Alt+2)',
+  },
+  {
+    format: 'heading-three',
+    label: 'H3',
+    icon: <Heading3 size={16} />,
+    tooltip: 'Heading 3 (Ctrl+Alt+3)',
+  },
+  {
+    format: 'bulleted-list',
+    label: 'Bullet List',
+    icon: <List size={16} />,
+    tooltip: 'Bullet List (Ctrl+Shift+U)',
+  },
   {
     format: 'numbered-list',
     label: 'Numbered List',
     icon: <ListOrdered size={16} />,
+    tooltip: 'Numbered List (Ctrl+Shift+L)',
   },
 ];
 
@@ -67,11 +127,12 @@ export default function Toolbar() {
 
   return (
     <div className="flex gap-2 mb-4 flex-wrap">
-      {MARKS.map(({ format, label, icon }) => {
+      {MARKS.map(({ format, label, icon, tooltip }) => {
         const active = isMarkActive(editor, format);
         return (
           <button
             key={format}
+            title={tooltip}
             onMouseDown={(e) => {
               e.preventDefault();
               toggleMark(editor, format);
@@ -90,6 +151,7 @@ export default function Toolbar() {
       })}
 
       <button
+        title='Code Block (Ctrl+Shift+C)'
         onMouseDown={(e) => {
           e.preventDefault();
           toggleBlock(editor, 'code-block');
@@ -105,8 +167,9 @@ export default function Toolbar() {
         <span>Code Block</span>
       </button>
 
-      {BLOCKS.map(({ format, label, icon }) => (
+      {BLOCKS.map(({ format, label, icon, tooltip }) => (
         <button
+          title={tooltip}
           key={format}
           onMouseDown={(e) => {
             e.preventDefault();
