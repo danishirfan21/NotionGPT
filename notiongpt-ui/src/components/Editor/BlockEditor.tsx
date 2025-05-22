@@ -1,10 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Slate, Editable, type RenderElementProps } from 'slate-react';
 import { Editor } from 'slate';
 import type { Descendant } from 'slate';
 import Toolbar from './Toolbar';
-import { toggleMark } from './Marks';
-import { toggleBlock } from './BlockUtils';
+import { handleKeyDown } from '../../lib/handleKeyDown';
 
 interface Props {
   value: Descendant[];
@@ -91,7 +90,7 @@ function BlockEditor({ value, onChange, editor }: Props) {
       default:
         return <p {...attributes}>{children}</p>;
     }
-  }, []);  
+  }, []);
 
   return (
     <div className="h-full w-full p-6 bg-white overflow-auto border-l overflow-auto custom-scroll p-4 h-full">
@@ -108,94 +107,7 @@ function BlockEditor({ value, onChange, editor }: Props) {
           renderElement={renderElement}
           placeholder="Type something..."
           className="outline-none min-h-[300px] text-gray-800"
-          onKeyDown={(event) => {
-            const { metaKey, ctrlKey, shiftKey, altKey, key } = event;
-            const isCmd = metaKey || ctrlKey;
-            const k = key.toLowerCase();
-
-            if (isCmd && k === 'b') {
-              event.preventDefault();
-              toggleMark(editor, 'bold');
-            }
-
-            if (isCmd && k === 'i') {
-              event.preventDefault();
-              toggleMark(editor, 'italic');
-            }
-
-            if (isCmd && !shiftKey && k === 'u') {
-              event.preventDefault();
-              toggleMark(editor, 'underline');
-            }
-
-            if (isCmd && k === 's') {
-              event.preventDefault();
-              toggleMark(editor, 'strikethrough');
-            }
-
-            if (isCmd && k === 'h') {
-              event.preventDefault();
-              toggleMark(editor, 'highlight');
-            }
-
-            if (isCmd && shiftKey && k === 'q') {
-              event.preventDefault();
-              toggleMark(editor, 'quote');
-            }
-
-            if (isCmd && k === 'k') {
-              event.preventDefault();
-              toggleMark(editor, 'code');
-            }
-
-            if (isCmd && shiftKey && k === 'p') {
-              event.preventDefault();
-              toggleMark(editor, 'superscript');
-            }
-
-            if (isCmd && shiftKey && k === 'b') {
-              event.preventDefault();
-              toggleMark(editor, 'subscript');
-            }
-
-            if (isCmd && shiftKey && k === 'c') {
-              event.preventDefault();
-              toggleBlock(editor, 'code-block');
-            }
-
-            if (ctrlKey && altKey && k === '1') {
-              event.preventDefault();
-              toggleBlock(editor, 'heading-one');
-            }
-
-            if (ctrlKey && altKey && k === '2') {
-              event.preventDefault();
-              toggleBlock(editor, 'heading-two');
-            }
-
-            if (ctrlKey && altKey && k === '3') {
-              event.preventDefault();
-              toggleBlock(editor, 'heading-three');
-            }
-
-            if (isCmd && shiftKey && k === 'l') {
-              event.preventDefault();
-              toggleBlock(editor, 'numbered-list');
-            }
-
-            if (isCmd && shiftKey && k === 'u') {
-              event.preventDefault();
-              toggleBlock(editor, 'bulleted-list');
-            }
-
-            if (k === '/') {
-              console.log('Slash menu opened');
-            }
-
-            if (k === 'escape') {
-              console.log('Slash menu closed');
-            }
-          }}
+          onKeyDown={handleKeyDown(editor)}
         />
       </Slate>
     </div>
