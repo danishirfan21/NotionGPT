@@ -19,6 +19,7 @@ import {
   Heading2,
   Heading3,
   FileCode,
+  Table,
 } from 'lucide-react';
 import type { JSX } from 'react';
 
@@ -119,6 +120,12 @@ const BLOCKS: {
     label: 'Numbered List',
     icon: <ListOrdered size={16} />,
     tooltip: 'Numbered List (Ctrl+Shift+L)',
+  },
+  {
+    format: 'table',
+    label: 'Table',
+    icon: <Table size={16} />,
+    tooltip: 'Insert Table (/table)',
   },
 ];
 

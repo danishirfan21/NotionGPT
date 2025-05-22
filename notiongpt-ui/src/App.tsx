@@ -27,6 +27,9 @@ type HeadingThree = { type: 'heading-three'; children: CustomText[] };
 type BulletedList = { type: 'bulleted-list'; children: CustomElement[] };
 type NumberedList = { type: 'numbered-list'; children: CustomElement[] };
 type ListItem = { type: 'list-item'; children: CustomText[] };
+type TableCell = { type: 'table-cell'; children: CustomText[]; };
+type TableRow = { type: 'table-row'; children: TableCell[]; };
+type TableBlock = { type: 'table'; children: TableRow[]; };
 
 type CustomElement =
   | ParagraphElement
@@ -36,7 +39,10 @@ type CustomElement =
   | HeadingThree
   | BulletedList
   | NumberedList
-  | ListItem;
+  | ListItem
+  | TableCell
+  | TableRow
+  | TableBlock
 
 declare module 'slate' {
   interface CustomTypes {

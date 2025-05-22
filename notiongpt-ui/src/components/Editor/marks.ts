@@ -12,5 +12,5 @@ export const toggleMark = (editor: Editor, format: MarkFormat) => {
 
 export const isMarkActive = (editor: Editor, format: MarkFormat): boolean => {
   const marks = Editor.marks(editor);
-  return marks ? (marks as any)[format] === true : false;
+  return marks ? (marks)[format] === true : false;
 };

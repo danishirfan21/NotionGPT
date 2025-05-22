@@ -7,9 +7,26 @@ export type BlockFormat =
   | 'heading-two'
   | 'heading-three'
   | 'bulleted-list'
-  | 'numbered-list';
+  | 'numbered-list'
+  | 'table';
 
 const LIST_TYPES = ['bulleted-list', 'numbered-list'];
+
+type TableBlock = {
+  type: 'table';
+  children: TableRow[];
+};
+
+type TableRow = {
+  type: 'table-row';
+  children: TableCell[];
+};
+
+type TableCell = {
+  type: 'table-cell';
+  children: { text: string }[];
+};
+
 
 export const isBlockActive = (editor: Editor, format: BlockFormat) => {
   const [match] = Editor.nodes(editor, {
@@ -34,12 +51,41 @@ export const toggleBlock = (editor: Editor, format: BlockFormat) => {
     split: true,
   });
 
-  const newType = isActive ? 'paragraph' : isList ? 'list-item' : format;
+  if (isActive) {
+    Transforms.setNodes(editor, { type: 'paragraph' });
+    return;
+  }
 
+  if (format === 'table') {
+    const table: TableBlock = {
+      type: 'table',
+      children: [
+        {
+          type: 'table-row',
+          children: [
+            { type: 'table-cell', children: [{ text: '' }] },
+            { type: 'table-cell', children: [{ text: '' }] },
+          ],
+        },
+        {
+          type: 'table-row',
+          children: [
+            { type: 'table-cell', children: [{ text: '' }] },
+            { type: 'table-cell', children: [{ text: '' }] },
+          ],
+        },
+      ],
+    };    
+    Transforms.insertNodes(editor, table);
+    return;
+  }
+
+  const newType = isList ? 'list-item' : format;
   Transforms.setNodes(editor, { type: newType });
 
-  if (!isActive && isList) {
+  if (isList) {
     const block = { type: format, children: [] };
     Transforms.wrapNodes(editor, block);
   }
 };
+

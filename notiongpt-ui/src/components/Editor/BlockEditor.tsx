@@ -25,6 +25,7 @@ import {
   Subscript,
   Quote,
   Code,
+  Table,
 } from 'lucide-react';
 
 
@@ -110,6 +111,26 @@ function BlockEditor({ value, onChange, editor }: Props) {
             <code>{children}</code>
           </pre>
         );
+      case 'table':
+        return (
+          <div {...attributes} className="my-4 overflow-auto">
+            <table className="table-fixed border-collapse border border-gray-300 w-auto">
+              <tbody>{children}</tbody>
+            </table>
+          </div>
+        );
+      case 'table-row':
+        return <tr {...attributes}>{children}</tr>;
+      case 'table-cell':
+        return (
+          <td
+            {...attributes}
+            className="border border-gray-300 px-3 py-2 text-left align-top min-w-[120px]"
+          >
+            {children}
+          </td>
+        );
+
       default:
         return <p {...attributes}>{children}</p>;
     }
@@ -200,6 +221,7 @@ function BlockEditor({ value, onChange, editor }: Props) {
     { label: 'Subscript', value: 'subscript', type: 'mark', icon: Subscript },
     { label: 'Quote', value: 'quote', type: 'mark', icon: Quote },
     { label: 'Inline Code', value: 'code', type: 'mark', icon: Code },
+    { label: 'Table', value: 'table', type: 'block', icon: Table },
   ];
 
   const filteredCommands = SLASH_COMMANDS.filter((cmd) =>

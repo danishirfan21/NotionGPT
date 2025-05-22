@@ -1,7 +1,8 @@
-import { Editor, Transforms } from 'slate';
+import { Editor, Transforms, Element as SlateElement } from 'slate';
 import { toggleMark } from '../components/Editor/Marks';
 import { toggleBlock, type BlockFormat } from '../components/Editor/BlockUtils';
 import type { MarkFormat } from '../components/Editor/MarkFormats';
+import { Path } from 'slate';
 
 type SlashState = {
   show: boolean;
@@ -52,6 +53,61 @@ export const handleKeyDown =
       return prevent(() => toggleBlock(editor, 'numbered-list'));
     if (isCmd && shiftKey && k === 'u')
       return prevent(() => toggleBlock(editor, 'bulleted-list'));
+
+    if (key === 'Enter') {
+      const { selection } = editor;
+      if (!selection) return;
+
+      const [cellEntry] = Editor.nodes(editor, {
+        match: (n) =>
+          !Editor.isEditor(n) &&
+          SlateElement.isElement(n) &&
+          n.type === 'table-cell',
+      });
+
+      if (cellEntry) {
+        const [, cellPath] = cellEntry;
+
+        const parentTable = Editor.above(editor, {
+          at: cellPath,
+          match: (n) => SlateElement.isElement(n) && n.type === 'table',
+        });
+
+        if (parentTable) {
+          const [tableNode, tablePath] = parentTable as [SlateElement, Path];
+
+          const lastRowIndex = tableNode.children.length - 1;
+          const lastRow = tableNode.children[lastRowIndex] as SlateElement;
+          const lastCellIndex = lastRow.children.length - 1;
+
+          const isLastRow = Path.equals(cellPath.slice(0, 2), [
+            ...tablePath,
+            lastRowIndex,
+          ]);
+          const isLastCell = Path.equals(cellPath, [
+            ...tablePath,
+            lastRowIndex,
+            lastCellIndex,
+          ]);
+          const isAtEnd = Editor.isEnd(editor, selection.anchor, cellPath);
+
+          if (isLastRow && isLastCell && isAtEnd) {
+            event.preventDefault();
+
+            const afterTablePath = Path.next(tablePath);
+            const paragraph: SlateElement = {
+              type: 'paragraph',
+              children: [{ text: '' }],
+            };
+
+            Transforms.insertNodes(editor, paragraph, { at: afterTablePath });
+            Transforms.select(editor, Editor.start(editor, afterTablePath));
+            return;
+          }
+        }
+      }
+    }
+    
 
     if (!slash) return;
 
