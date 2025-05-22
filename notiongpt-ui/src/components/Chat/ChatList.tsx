@@ -9,14 +9,21 @@ interface ChatMessage {
 
 interface Props {
   messages: ChatMessage[];
+  aiMessageRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-function ChatList({ messages }: Props) {
+function ChatList({ messages, aiMessageRef }: Props) {
   return (
     <div className="flex flex-col gap-3">
-      {messages.map((msg) => (
-        <ChatItem key={msg.id} role={msg.role} text={msg.text} />
-      ))}
+      {messages.map((msg, index) => {
+        const isLastAI = msg.role === 'ai' && index === messages.length - 1;
+
+        return (
+          <div key={msg.id} ref={isLastAI ? aiMessageRef : undefined}>
+            <ChatItem role={msg.role} text={msg.text} />
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatList from "./ChatList";
 import ChatInput from "./ChatInput";
 
@@ -39,10 +39,19 @@ function ChatContainer({ onNewAIMessage }: Props) {
     }, 1000);
   };
 
+  const aiMessageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    aiMessageRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [messages]);
+
   return (
     <div className="flex flex-col h-[600px] w-full max-w-2xl bg-white border shadow-lg rounded-lg overflow-hidden">
       <div className="flex-1 overflow-y-auto p-4">
-        <ChatList messages={messages} />
+        <ChatList messages={messages} aiMessageRef={aiMessageRef} />
       </div>
       <div className="p-3 border-t">
         <ChatInput onSend={handleSend} />
