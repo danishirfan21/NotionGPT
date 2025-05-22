@@ -8,6 +8,25 @@ import { toggleBlock, type BlockFormat } from './BlockUtils';
 import { toggleMark } from './Marks';
 import { Range } from 'slate';
 import type { MarkFormat } from './MarkFormats';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  Code2,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Highlighter,
+  Superscript,
+  Subscript,
+  Quote,
+  Code,
+} from 'lucide-react';
+
 
 interface Props {
   value: Descendant[];
@@ -136,25 +155,51 @@ function BlockEditor({ value, onChange, editor }: Props) {
     label: string;
     value: BlockFormat | MarkFormat;
     type: 'block' | 'mark';
-  };  
+    icon: LucideIcon;
+  }; 
 
   const SLASH_COMMANDS: SlashCommand[] = [
-    { label: 'Heading 1', value: 'heading-one', type: 'block' },
-    { label: 'Heading 2', value: 'heading-two', type: 'block' },
-    { label: 'Heading 3', value: 'heading-three', type: 'block' },
-    { label: 'Bulleted List', value: 'bulleted-list', type: 'block' },
-    { label: 'Numbered List', value: 'numbered-list', type: 'block' },
-    { label: 'Code Block', value: 'code-block', type: 'block' },
+    { label: 'Heading 1', value: 'heading-one', type: 'block', icon: Heading1 },
+    { label: 'Heading 2', value: 'heading-two', type: 'block', icon: Heading2 },
+    {
+      label: 'Heading 3',
+      value: 'heading-three',
+      type: 'block',
+      icon: Heading3,
+    },
+    {
+      label: 'Bulleted List',
+      value: 'bulleted-list',
+      type: 'block',
+      icon: List,
+    },
+    {
+      label: 'Numbered List',
+      value: 'numbered-list',
+      type: 'block',
+      icon: ListOrdered,
+    },
+    { label: 'Code Block', value: 'code-block', type: 'block', icon: Code2 },
 
-    { label: 'Bold', value: 'bold', type: 'mark' },
-    { label: 'Italic', value: 'italic', type: 'mark' },
-    { label: 'Underline', value: 'underline', type: 'mark' },
-    { label: 'Strikethrough', value: 'strikethrough', type: 'mark' },
-    { label: 'Highlight', value: 'highlight', type: 'mark' },
-    { label: 'Superscript', value: 'superscript', type: 'mark' },
-    { label: 'Subscript', value: 'subscript', type: 'mark' },
-    { label: 'Quote', value: 'quote', type: 'mark' },
-    { label: 'Inline Code', value: 'code', type: 'mark' },
+    { label: 'Bold', value: 'bold', type: 'mark', icon: Bold },
+    { label: 'Italic', value: 'italic', type: 'mark', icon: Italic },
+    { label: 'Underline', value: 'underline', type: 'mark', icon: Underline },
+    {
+      label: 'Strikethrough',
+      value: 'strikethrough',
+      type: 'mark',
+      icon: Strikethrough,
+    },
+    { label: 'Highlight', value: 'highlight', type: 'mark', icon: Highlighter },
+    {
+      label: 'Superscript',
+      value: 'superscript',
+      type: 'mark',
+      icon: Superscript,
+    },
+    { label: 'Subscript', value: 'subscript', type: 'mark', icon: Subscript },
+    { label: 'Quote', value: 'quote', type: 'mark', icon: Quote },
+    { label: 'Inline Code', value: 'code', type: 'mark', icon: Code },
   ];
 
   const filteredCommands = SLASH_COMMANDS.filter((cmd) =>
@@ -171,9 +216,6 @@ function BlockEditor({ value, onChange, editor }: Props) {
     focusedIndex,
     setFocusedIndex,
   };
-
-  console.log('SlashCommand:', slashCommand);
-  console.log('Filtered:', filteredCommands);
 
   useEffect(() => {
     if (!showSlashMenu || !editor.selection || !menuRef.current) return;
@@ -232,22 +274,26 @@ function BlockEditor({ value, onChange, editor }: Props) {
             ref={menuRef}
             className="absolute bg-white border border-gray-300 shadow-md w-60 rounded z-50"
           >
-            {filteredCommands.map((cmd, index) => (
-              <li
-                key={cmd.value}
-                className={`px-4 py-2 cursor-pointer ${
-                  index === focusedIndex ? 'bg-gray-200' : ''
-                }`}
-                onMouseEnter={() => setFocusedIndex(index)}
-                onClick={() => {
-                  handleSlashCommand(editor, cmd.value);
-                  setShowSlashMenu(false);
-                  setSlashCommand('');
-                }}
-              >
-                {cmd.label}
-              </li>
-            ))}
+            {filteredCommands.map((cmd, index) => {
+              const Icon = cmd.icon;
+              return (
+                <li
+                  key={cmd.value}
+                  className={`flex items-center gap-2 px-4 py-2 cursor-pointer ${
+                    index === focusedIndex ? 'bg-gray-200' : ''
+                  }`}
+                  onMouseEnter={() => setFocusedIndex(index)}
+                  onClick={() => {
+                    handleSlashCommand(editor, cmd.value);
+                    setShowSlashMenu(false);
+                    setSlashCommand('');
+                  }}
+                >
+                  <Icon size={16} className="text-gray-600" />
+                  <span>{cmd.label}</span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </Slate>
