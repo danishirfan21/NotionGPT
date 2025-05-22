@@ -1,11 +1,13 @@
-import { useCallback, useState } from 'react';
-import { Slate, Editable, type RenderElementProps, type RenderLeafProps } from 'slate-react';
-import { Editor } from 'slate';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Slate, Editable, type RenderElementProps, type RenderLeafProps, ReactEditor } from 'slate-react';
+import { Editor, Transforms } from 'slate';
 import type { Descendant } from 'slate';
 import Toolbar from './Toolbar';
 import { handleKeyDown } from '../../lib/handleKeyDown';
-import { toggleBlock } from './BlockUtils';
+import { toggleBlock, type BlockFormat } from './BlockUtils';
 import { toggleMark } from './Marks';
+import { Range } from 'slate';
+import type { MarkFormat } from './MarkFormats';
 
 interface Props {
   value: Descendant[];
@@ -96,45 +98,68 @@ function BlockEditor({ value, onChange, editor }: Props) {
 
   const [slashCommand, setSlashCommand] = useState<string>('');
   const [showSlashMenu, setShowSlashMenu] = useState<boolean>(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const menuRef = useRef<HTMLUListElement | null>(null);
 
-  const handleSlashCommand = (editor: Editor, command: string) => {
-    const cmd = command.toLowerCase();
+  const deleteSlashTrigger = () => {
+    const { selection } = editor;
+    if (!selection || !Range.isCollapsed(selection)) return;
 
-    switch (cmd) {
-      case 'h1':
-        return toggleBlock(editor, 'heading-one');
-      case 'h2':
-        return toggleBlock(editor, 'heading-two');
-      case 'h3':
-        return toggleBlock(editor, 'heading-three');
-      case 'ul':
-        return toggleBlock(editor, 'bulleted-list');
-      case 'ol':
-        return toggleBlock(editor, 'numbered-list');
-      case 'cb':
-        return toggleBlock(editor, 'code-block');
-      case 'b':
-        return toggleMark(editor, 'bold');
-      case 'i':
-        return toggleMark(editor, 'italic');
-      case 'u':
-        return toggleMark(editor, 'underline');
-      case 's':
-        return toggleMark(editor, 'strikethrough');
-      case 'hl':
-        return toggleMark(editor, 'highlight');
-      case 'q':
-        return toggleMark(editor, 'quote');
-      case 'c':
-        return toggleMark(editor, 'code');
-      case 'sup':
-        return toggleMark(editor, 'superscript');
-      case 'sub':
-        return toggleMark(editor, 'subscript');
-      default:
-        break;
+    const offset = slashCommand.length + 1;
+    const start = {
+      ...selection.anchor,
+      offset: selection.anchor.offset - offset,
+    };
+
+    Transforms.delete(editor, {
+      at: { anchor: start, focus: selection.anchor },
+    });
+  };
+
+
+  const handleSlashCommand = (
+    editor: Editor,
+    command: BlockFormat | MarkFormat
+  ) => {
+    const cmd = SLASH_COMMANDS.find((c) => c.value === command);
+    if (!cmd) return;
+
+    if (cmd.type === 'block') {
+      toggleBlock(editor, cmd.value as BlockFormat);
+    } else if (cmd.type === 'mark') {
+      toggleMark(editor, cmd.value as MarkFormat);
     }
+    deleteSlashTrigger()
+  };
+
+  type SlashCommand = {
+    label: string;
+    value: BlockFormat | MarkFormat;
+    type: 'block' | 'mark';
   };  
+
+  const SLASH_COMMANDS: SlashCommand[] = [
+    { label: 'Heading 1', value: 'heading-one', type: 'block' },
+    { label: 'Heading 2', value: 'heading-two', type: 'block' },
+    { label: 'Heading 3', value: 'heading-three', type: 'block' },
+    { label: 'Bulleted List', value: 'bulleted-list', type: 'block' },
+    { label: 'Numbered List', value: 'numbered-list', type: 'block' },
+    { label: 'Code Block', value: 'code-block', type: 'block' },
+
+    { label: 'Bold', value: 'bold', type: 'mark' },
+    { label: 'Italic', value: 'italic', type: 'mark' },
+    { label: 'Underline', value: 'underline', type: 'mark' },
+    { label: 'Strikethrough', value: 'strikethrough', type: 'mark' },
+    { label: 'Highlight', value: 'highlight', type: 'mark' },
+    { label: 'Superscript', value: 'superscript', type: 'mark' },
+    { label: 'Subscript', value: 'subscript', type: 'mark' },
+    { label: 'Quote', value: 'quote', type: 'mark' },
+    { label: 'Inline Code', value: 'code', type: 'mark' },
+  ];
+
+  const filteredCommands = SLASH_COMMANDS.filter((cmd) =>
+    cmd.label.toLowerCase().includes(slashCommand.toLowerCase())
+  );  
 
   const slash = {
     show: showSlashMenu,
@@ -142,8 +167,48 @@ function BlockEditor({ value, onChange, editor }: Props) {
     command: slashCommand,
     setCommand: setSlashCommand,
     handleSlashCommand,
+    filteredCommands,
+    focusedIndex,
+    setFocusedIndex,
   };
 
+  console.log('SlashCommand:', slashCommand);
+  console.log('Filtered:', filteredCommands);
+
+  useEffect(() => {
+    if (!showSlashMenu || !editor.selection || !menuRef.current) return;
+
+    const slashOffset = slashCommand.length + 1;
+    const anchor = editor.selection.anchor;
+
+    if (anchor.offset < slashOffset) return;
+
+    const pointBeforeSlash = {
+      ...anchor,
+      offset: anchor.offset - slashOffset,
+    };
+
+    const range: Range = {
+      anchor: pointBeforeSlash,
+      focus: pointBeforeSlash,
+    };
+
+    try {
+      const domRange = ReactEditor.toDOMRange(editor, range);
+      const rect = domRange.getBoundingClientRect();
+
+      const menu = menuRef.current;
+      menu.style.position = 'absolute';
+      menu.style.left = `${rect.left + window.scrollX}px`;
+      menu.style.top = `${rect.top + window.scrollY + rect.height}px`;
+      menu.style.zIndex = '9999';
+    } catch (e) {
+      console.warn('Dropdown positioning error:', e);
+    }
+  }, [showSlashMenu, slashCommand, editor]);
+  
+  
+  
 
   return (
     <div className="h-full w-full p-6 bg-white overflow-auto border-l overflow-auto custom-scroll p-4 h-full">
@@ -162,6 +227,29 @@ function BlockEditor({ value, onChange, editor }: Props) {
           className="outline-none min-h-[300px] text-gray-800"
           onKeyDown={handleKeyDown(editor, slash)}
         />
+        {showSlashMenu && (
+          <ul
+            ref={menuRef}
+            className="absolute bg-white border border-gray-300 shadow-md w-60 rounded z-50"
+          >
+            {filteredCommands.map((cmd, index) => (
+              <li
+                key={cmd.value}
+                className={`px-4 py-2 cursor-pointer ${
+                  index === focusedIndex ? 'bg-gray-200' : ''
+                }`}
+                onMouseEnter={() => setFocusedIndex(index)}
+                onClick={() => {
+                  handleSlashCommand(editor, cmd.value);
+                  setShowSlashMenu(false);
+                  setSlashCommand('');
+                }}
+              >
+                {cmd.label}
+              </li>
+            ))}
+          </ul>
+        )}
       </Slate>
     </div>
   );

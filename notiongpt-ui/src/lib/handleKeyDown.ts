@@ -1,14 +1,22 @@
 import { Editor, Transforms } from 'slate';
 import { toggleMark } from '../components/Editor/Marks';
-import { toggleBlock } from '../components/Editor/BlockUtils';
+import { toggleBlock, type BlockFormat } from '../components/Editor/BlockUtils';
+import type { MarkFormat } from '../components/Editor/MarkFormats';
 
 type SlashState = {
   show: boolean;
-  setShow: (val: boolean) => void;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
   command: string;
   setCommand: React.Dispatch<React.SetStateAction<string>>;
-  handleSlashCommand: (editor: Editor, command: string) => void;
+  handleSlashCommand: (
+    editor: Editor,
+    command: BlockFormat | MarkFormat
+  ) => void;
+  filteredCommands: { label: string; value: BlockFormat | MarkFormat }[];
+  focusedIndex: number;
+  setFocusedIndex: React.Dispatch<React.SetStateAction<number>>;
 };
+
 
 export const handleKeyDown =
   (editor: Editor, slash?: SlashState) =>
@@ -47,7 +55,16 @@ export const handleKeyDown =
 
     if (!slash) return;
 
-    const { show, setShow, command, setCommand, handleSlashCommand } = slash;
+    const {
+      show,
+      setShow,
+      command,
+      setCommand,
+      handleSlashCommand,
+      filteredCommands,
+      focusedIndex,
+      setFocusedIndex,
+    } = slash;
 
     if (key === '/') {
       setShow(true);
@@ -55,48 +72,60 @@ export const handleKeyDown =
       return;
     }
 
-    if (show && key.length === 1 && /^[a-z0-9]$/i.test(key)) {
-      setCommand((prev: string) => prev + key);
+    if (show && key.length === 1 && /^[a-zA-Z0-9]$/.test(key)) {
+      setCommand((prev) => prev + key);
       return;
     }
 
     if (show && key === 'Backspace') {
-      setCommand((prev: string) => {
+      setCommand((prev) => {
         const updated = prev.slice(0, -1);
-        if (updated.length === 0) setShow(false);
+        if (updated === '') setShow(false);
         return updated;
       });
       return;
     }
 
-    if (show && key === 'Enter') {
-      event.preventDefault();
-
-      const { selection } = editor;
-      if (selection && command.length > 0) {
-        Transforms.delete(editor, {
-          at: {
-            anchor: {
-              ...selection.anchor,
-              offset: selection.anchor.offset - (command.length + 1), // +1 for "/"
-            },
-            focus: selection.anchor,
-          },
-        });
+    if (show) {
+      if (key === 'ArrowDown') {
+        event.preventDefault();
+        setFocusedIndex((prev) => (prev + 1) % filteredCommands.length);
+        return;
       }
 
-      handleSlashCommand(editor, command);
+      if (key === 'ArrowUp') {
+        event.preventDefault();
+        setFocusedIndex(
+          (prev) =>
+            (prev - 1 + filteredCommands.length) % filteredCommands.length
+        );
+        return;
+      }
 
-      setShow(false);
-      setCommand('');
-      return;
-    }
-      
+      if (key === 'Enter') {
+        event.preventDefault();
+        const selected = filteredCommands[focusedIndex];
+        if (selected) {
+          Transforms.delete(editor, {
+            at: {
+              anchor: {
+                ...editor.selection!.anchor,
+                offset: editor.selection!.anchor.offset - (command.length + 1),
+              },
+              focus: editor.selection!.anchor,
+            },
+          });
+          handleSlashCommand(editor, selected.value);
+          setShow(false);
+          setCommand('');
+        }
+        return;
+      }
 
-    if (key === 'Escape') {
-      setShow(false);
-      setCommand('');
-      return;
+      if (key === 'Escape') {
+        setShow(false);
+        return;
+      }
     }
   };
 
