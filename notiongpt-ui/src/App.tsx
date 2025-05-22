@@ -1,6 +1,6 @@
 import ChatContainer from './components/Chat/ChatContainer';
 import BlockEditor from './components/Editor/BlockEditor';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { createEditor } from 'slate';
 import type { BaseEditor, Descendant } from 'slate';
 import { withReact, type ReactEditor } from 'slate-react';
@@ -64,8 +64,23 @@ function App() {
     ]);
   };
 
+  useEffect(() => {
+    localStorage.setItem('notiongpt-notes', JSON.stringify(noteValue));
+  }, [noteValue]);
+
   return (
     <div className="h-screen w-screen grid grid-cols-2 bg-gray-100">
+      <button
+        onClick={() => {
+          localStorage.removeItem('notiongpt-chat');
+          localStorage.removeItem('notiongpt-notes');
+          location.reload();
+        }}
+        className="absolute top-2 right-4 text-xs underline text-red-500 z-50"
+      >
+        Clear All Data
+      </button>
+
       <div className="border-r flex justify-center items-center">
         <ChatContainer onNewAIMessage={handleSyncMessageToNotes} />
       </div>

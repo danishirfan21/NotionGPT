@@ -13,10 +13,19 @@ interface Props {
 }
 
 function ChatContainer({ onNewAIMessage }: Props) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: 1, role: 'user', text: 'What is AI?' },
-    { id: 2, role: 'ai', text: 'AI stands for Artificial Intelligence...' },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const stored = localStorage.getItem('notiongpt-chat');
+    return stored
+      ? JSON.parse(stored)
+      : [
+          { id: 1, role: 'user', text: 'What is AI?' },
+          {
+            id: 2,
+            role: 'ai',
+            text: 'AI stands for Artificial Intelligence...',
+          },
+        ];
+  });
 
   const handleSend = (text: string) => {
     const userMsg: ChatMessage = {
@@ -46,6 +55,7 @@ function ChatContainer({ onNewAIMessage }: Props) {
       behavior: 'smooth',
       block: 'start',
     });
+    localStorage.setItem('notiongpt-chat', JSON.stringify(messages));
   }, [messages]);
 
   return (
