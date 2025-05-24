@@ -4,45 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { createEditor } from 'slate';
 import type { BaseEditor, Descendant } from 'slate';
 import { withReact, type ReactEditor } from 'slate-react';
-
-
-type CustomText = {
-  text: string;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  strikethrough?: boolean;
-  highlight?: boolean;
-  superscript?: boolean;
-  subscript?: boolean;
-  quote?: boolean;
-  code?: boolean;
-};
-
-type ParagraphElement = { type: 'paragraph'; children: CustomText[] };
-type CodeBlockElement = { type: 'code-block'; children: CustomText[] };
-type HeadingOne = { type: 'heading-one'; children: CustomText[] };
-type HeadingTwo = { type: 'heading-two'; children: CustomText[] };
-type HeadingThree = { type: 'heading-three'; children: CustomText[] };
-type BulletedList = { type: 'bulleted-list'; children: CustomElement[] };
-type NumberedList = { type: 'numbered-list'; children: CustomElement[] };
-type ListItem = { type: 'list-item'; children: CustomText[] };
-type TableCell = { type: 'table-cell'; children: CustomText[]; };
-type TableRow = { type: 'table-row'; children: TableCell[]; };
-type TableBlock = { type: 'table'; children: TableRow[]; };
-
-type CustomElement =
-  | ParagraphElement
-  | CodeBlockElement
-  | HeadingOne
-  | HeadingTwo
-  | HeadingThree
-  | BulletedList
-  | NumberedList
-  | ListItem
-  | TableCell
-  | TableRow
-  | TableBlock
+import type { CustomElement, CustomText } from './lib/utils';
 
 declare module 'slate' {
   interface CustomTypes {

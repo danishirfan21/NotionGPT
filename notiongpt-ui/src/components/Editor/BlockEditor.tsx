@@ -8,7 +8,7 @@ import { toggleBlock, type BlockFormat } from './BlockUtils';
 import { toggleMark } from './Marks';
 import { Range } from 'slate';
 import type { MarkFormat } from './MarkFormats';
-import type { LucideIcon } from 'lucide-react';
+import { Minus, type LucideIcon, Plus } from 'lucide-react';
 import {
   Heading1,
   Heading2,
@@ -27,6 +27,7 @@ import {
   Code,
   Table,
 } from 'lucide-react';
+import { addColumn, addRow, removeColumn, removeRow } from '../../lib/TableUtils';
 
 
 interface Props {
@@ -113,10 +114,46 @@ function BlockEditor({ value, onChange, editor }: Props) {
         );
       case 'table':
         return (
-          <div {...attributes} className="my-4 overflow-auto">
-            <table className="table-fixed border-collapse border border-gray-300 w-auto">
-              <tbody>{children}</tbody>
+          <div className="relative group">
+            <table
+              {...attributes}
+              className="table-auto border border-gray-300"
+            >
+              {children}
             </table>
+            <div className="absolute -top-8 left-0 hidden group-hover:flex gap-2 bg-white p-1 shadow rounded z-10">
+              {[
+                {
+                  label: 'Row',
+                  icon: <Plus size={16} />,
+                  onClick: () => addRow(editor, element),
+                },
+                {
+                  label: 'Row',
+                  icon: <Minus size={16} />,
+                  onClick: () => removeRow(editor, element),
+                },
+                {
+                  label: 'Col',
+                  icon: <Plus size={16} />,
+                  onClick: () => addColumn(editor, element),
+                },
+                {
+                  label: 'Col',
+                  icon: <Minus size={16} />,
+                  onClick: () => removeColumn(editor, element),
+                },
+              ].map(({ label, icon, onClick }, i) => (
+                <button
+                  key={i}
+                  onClick={onClick}
+                  className="flex items-center gap-1 text-xs bg-gray-100 px-2 py-1 border border-gray-300 rounded hover:bg-gray-200 transition"
+                >
+                  {icon}
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         );
       case 'table-row':
@@ -134,7 +171,7 @@ function BlockEditor({ value, onChange, editor }: Props) {
       default:
         return <p {...attributes}>{children}</p>;
     }
-  }, []);
+  }, [editor]);
 
   const [slashCommand, setSlashCommand] = useState<string>('');
   const [showSlashMenu, setShowSlashMenu] = useState<boolean>(false);
