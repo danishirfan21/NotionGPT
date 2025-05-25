@@ -27,11 +27,21 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'chat' | 'notes'>('chat');
 
   const handleSyncMessageToNotes = (text: string) => {
-    setNoteValue((prev) => [
-      ...prev,
-      { type: 'paragraph', children: [{ text }] },
-    ]);
-  };
+    setNoteValue((prev) => {
+      const first = prev[0];
+      const isFirstEmpty =
+        prev.length === 1 &&
+        typeof first === 'object' &&
+        'type' in first &&
+        first.type === 'paragraph' &&
+        Array.isArray(first.children) &&
+        first.children[0]?.text === '';
+
+      const cleaned = isFirstEmpty ? [] : prev;
+
+      return [...cleaned, { type: 'paragraph', children: [{ text }] }];
+    });
+  };  
 
   useEffect(() => {
     localStorage.setItem('notiongpt-notes', JSON.stringify(noteValue));
