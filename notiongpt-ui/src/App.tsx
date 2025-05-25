@@ -38,18 +38,20 @@ export default function App() {
   }, [noteValue]);
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-gray-100">
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-gray-100">
       {/* Desktop Layout */}
-      <div className="hidden md:flex flex-1">
-        <div className="w-1/2 border-r flex justify-center items-center">
+      <div className="hidden md:flex flex-1 h-screen">
+        <div className="w-1/2 border-r flex justify-center items-center p-4">
           <ChatContainer onNewAIMessage={handleSyncMessageToNotes} />
         </div>
-        <div className="w-1/2">
-          <BlockEditor
-            editor={editor}
-            value={noteValue}
-            onChange={setNoteValue}
-          />
+        <div className="w-1/2 p-4">
+          <div className="h-full w-full bg-white rounded-xl shadow-sm border flex flex-col overflow-hidden">
+            <BlockEditor
+              value={noteValue}
+              onChange={setNoteValue}
+              editor={editor}
+            />
+          </div>
         </div>
       </div>
 
