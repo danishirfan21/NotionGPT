@@ -28,6 +28,7 @@ import {
   Table,
 } from 'lucide-react';
 import { addColumn, addRow, removeColumn, removeRow } from '../../lib/TableUtils';
+import { useDebouncedCallback } from 'use-debounce';
 
 
 interface Props {
@@ -307,9 +308,21 @@ function BlockEditor({ value, onChange, editor }: Props) {
       console.warn('Dropdown positioning error:', e);
     }
   }, [showSlashMenu, slashCommand, editor]);
-  
-  
-  
+
+  const [localValue, setLocalValue] = useState(value);
+  const isFirstLoad = useRef(true);
+
+  const debouncedSync = useDebouncedCallback((val) => {
+    onChange(val);
+  }, 300);
+
+  useEffect(() => {
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      return;
+    }
+    debouncedSync(localValue);
+  }, [debouncedSync, localValue]);
 
   return (
     <div className="flex flex-col h-full w-full bg-white border-l">
@@ -317,9 +330,8 @@ function BlockEditor({ value, onChange, editor }: Props) {
 
       <Slate
         editor={editor}
-        initialValue={value}
-        key={JSON.stringify(value)}
-        onChange={onChange}
+        initialValue={localValue}
+        onChange={setLocalValue}
       >
         {/* Full-height container */}
         <div className="flex flex-col flex-1 overflow-hidden">

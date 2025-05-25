@@ -1,10 +1,11 @@
 import ChatContainer from './components/Chat/ChatContainer';
 import BlockEditor from './components/Editor/BlockEditor';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { createEditor } from 'slate';
 import type { BaseEditor, Descendant } from 'slate';
 import { withReact, type ReactEditor } from 'slate-react';
 import type { CustomElement, CustomText } from './lib/utils';
+import { useDebouncedEffect } from './hooks/useDebouncedEffect';
 
 declare module 'slate' {
   interface CustomTypes {
@@ -43,9 +44,14 @@ export default function App() {
     });
   };  
 
-  useEffect(() => {
-    localStorage.setItem('notiongpt-notes', JSON.stringify(noteValue));
-  }, [noteValue]);
+  useDebouncedEffect(
+    () => {
+      localStorage.setItem('notiongpt-notes', JSON.stringify(noteValue));
+    },
+    500,
+    [noteValue]
+  );
+  
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-gray-100">
