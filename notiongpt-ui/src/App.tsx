@@ -17,7 +17,7 @@ declare module 'slate' {
 const initialNote: Descendant[] = [
   {
     type: 'paragraph',
-    children: [{ text: 'Start writing your notes here...' }],
+    children: [{ text: '' }],
   },
 ];
 
