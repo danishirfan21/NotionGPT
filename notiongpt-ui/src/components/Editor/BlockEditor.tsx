@@ -313,7 +313,7 @@ function BlockEditor({ value, onChange, editor }: Props) {
 
   return (
     <div className="flex flex-col h-full w-full bg-white border-l">
-      <h2 className="text-xl font-semibold px-4 pt-4">📝 Notes</h2>
+      <h2 className="text-xl font-semibold px-4 pt-4 p-4">📝 Notes</h2>
 
       <Slate
         editor={editor}

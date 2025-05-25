@@ -45,7 +45,7 @@ export default function App() {
           <ChatContainer onNewAIMessage={handleSyncMessageToNotes} />
         </div>
         <div className="w-1/2 p-4">
-          <div className="h-full w-full bg-white rounded-xl shadow-sm border flex flex-col overflow-hidden">
+          <div className="h-full w-full bg-white rounded-xl shadow-sm border flex flex-col overflow-hidden p-4">
             <BlockEditor
               value={noteValue}
               onChange={setNoteValue}
@@ -95,7 +95,7 @@ export default function App() {
           localStorage.removeItem('notiongpt-notes');
           location.reload();
         }}
-        className="hidden md:block absolute top-2 right-4 text-xs underline text-red-500 z-50"
+        className="hidden md:block absolute top-2 right-4 text-xs underline text-red-500 z-50 p-6"
       >
         Clear All Data
       </button>
