@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ChatList from "./ChatList";
 import ChatInput from "./ChatInput";
+import { chatWithAI } from "@/lib/chatWithAI";
 
 export interface ChatMessage {
   id: number;
@@ -27,26 +28,37 @@ function ChatContainer({ onNewAIMessage }: Props) {
         ];
   });
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     const userMsg: ChatMessage = {
       id: Date.now(),
       role: 'user',
       text,
     };
 
-    const aiMsg: ChatMessage = {
-      id: Date.now() + 1,
-      role: 'ai',
-      text: `You said: "${text}" (This is a mock AI reply)`,
-    };
-
     setMessages((prev) => [...prev, userMsg]);
 
-    setTimeout(() => {
+    try {
+      const aiReply = await chatWithAI(text);
+
+      const aiMsg: ChatMessage = {
+        id: Date.now() + 1,
+        role: 'ai',
+        text: aiReply,
+      };
+
       setMessages((prev) => [...prev, aiMsg]);
       onNewAIMessage?.(aiMsg.text);
-    }, 1000);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      const errMsg: ChatMessage = {
+        id: Date.now() + 1,
+        role: 'ai',
+        text: '⚠️ Failed to fetch AI response.',
+      };
+      setMessages((prev) => [...prev, errMsg]);
+    }
   };
+  
 
   const aiMessageRef = useRef<HTMLDivElement>(null);
 

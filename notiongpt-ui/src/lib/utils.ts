@@ -18,7 +18,11 @@ export type CustomText = {
   code?: boolean;
 };
 
-export type ParagraphElement = { type: 'paragraph'; children: CustomText[] };
+export type ParagraphElement = {
+  type: 'paragraph';
+  children: CustomText[];
+  generatedByAI?: boolean;
+};
 export type CodeBlockElement = { type: 'code-block'; children: CustomText[] };
 export type HeadingOne = { type: 'heading-one'; children: CustomText[] };
 export type HeadingTwo = { type: 'heading-two'; children: CustomText[] };

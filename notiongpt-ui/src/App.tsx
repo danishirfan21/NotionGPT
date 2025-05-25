@@ -6,6 +6,7 @@ import type { BaseEditor, Descendant } from 'slate';
 import { withReact, type ReactEditor } from 'slate-react';
 import type { CustomElement, CustomText } from './lib/utils';
 import { useDebouncedEffect } from './hooks/useDebouncedEffect';
+import { summarizeNotes } from './lib/summarizeNotes';
 
 declare module 'slate' {
   interface CustomTypes {
@@ -26,6 +27,7 @@ export default function App() {
   const editor = useMemo(() => withReact(createEditor()), []);
   const [noteValue, setNoteValue] = useState<Descendant[]>(initialNote);
   const [activeTab, setActiveTab] = useState<'chat' | 'notes'>('chat');
+  const [isSummarizing, setIsSummarizing] = useState(false);
 
   const handleSyncMessageToNotes = (text: string) => {
     setNoteValue((prev) => {
@@ -40,7 +42,10 @@ export default function App() {
 
       const cleaned = isFirstEmpty ? [] : prev;
 
-      return [...cleaned, { type: 'paragraph', children: [{ text }] }];
+      return [
+        ...cleaned,
+        { type: 'paragraph', children: [{ text }], generatedByAI: true },
+      ];
     });
   };  
 
@@ -51,6 +56,25 @@ export default function App() {
     500,
     [noteValue]
   );
+
+  const handleSummarize = async () => {
+    setIsSummarizing(true);
+    try {
+      const summary = await summarizeNotes(noteValue);
+      setNoteValue((prev) => [
+        ...prev,
+        {
+          type: 'paragraph',
+          children: [{ text: summary }],
+          generatedByAI: true,
+        },
+      ]);
+    } catch (err) {
+      alert('Failed to summarize notes');
+      console.error(err);
+    }
+    setIsSummarizing(false);
+  };
   
 
   return (
@@ -62,6 +86,15 @@ export default function App() {
         </div>
         <div className="w-1/2 p-4">
           <div className="h-full w-full bg-white rounded-xl shadow-sm border flex flex-col overflow-hidden p-4">
+            {activeTab === 'notes' && (
+              <button
+                onClick={handleSummarize}
+                disabled={isSummarizing}
+                className="text-sm px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition mb-2 self-end"
+              >
+                {isSummarizing ? 'Summarizing...' : '🧠 Summarize Notes'}
+              </button>
+            )}
             <BlockEditor
               value={noteValue}
               onChange={setNoteValue}
@@ -76,11 +109,20 @@ export default function App() {
         {activeTab === 'chat' ? (
           <ChatContainer onNewAIMessage={handleSyncMessageToNotes} />
         ) : (
-          <BlockEditor
-            editor={editor}
-            value={noteValue}
-            onChange={setNoteValue}
-          />
+          <div className="p-4 space-y-2">
+            <button
+              onClick={handleSummarize}
+              disabled={isSummarizing}
+              className="w-full text-sm px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+            >
+              {isSummarizing ? 'Summarizing...' : '🧠 Summarize Notes'}
+            </button>
+            <BlockEditor
+              editor={editor}
+              value={noteValue}
+              onChange={setNoteValue}
+            />
+          </div>
         )}
       </div>
 
