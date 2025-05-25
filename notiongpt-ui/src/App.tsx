@@ -21,9 +21,10 @@ const initialNote: Descendant[] = [
   },
 ];
 
-function App() {
+export default function App() {
   const editor = useMemo(() => withReact(createEditor()), []);
   const [noteValue, setNoteValue] = useState<Descendant[]>(initialNote);
+  const [activeTab, setActiveTab] = useState<'chat' | 'notes'>('chat');
 
   const handleSyncMessageToNotes = (text: string) => {
     setNoteValue((prev) => [
@@ -37,24 +38,65 @@ function App() {
   }, [noteValue]);
 
   return (
-    <div className="h-screen w-screen grid grid-cols-2 bg-gray-100">
+    <div className="h-screen w-screen flex flex-col bg-gray-100">
+      {/* Desktop Layout */}
+      <div className="hidden md:flex flex-1">
+        <div className="w-1/2 border-r flex justify-center items-center">
+          <ChatContainer onNewAIMessage={handleSyncMessageToNotes} />
+        </div>
+        <div className="w-1/2">
+          <BlockEditor
+            editor={editor}
+            value={noteValue}
+            onChange={setNoteValue}
+          />
+        </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="flex-1 md:hidden">
+        {activeTab === 'chat' ? (
+          <ChatContainer onNewAIMessage={handleSyncMessageToNotes} />
+        ) : (
+          <BlockEditor
+            editor={editor}
+            value={noteValue}
+            onChange={setNoteValue}
+          />
+        )}
+      </div>
+
+      {/* Mobile Tab Switcher */}
+      <div className="md:hidden flex border-t bg-white">
+        <button
+          className={`w-1/2 py-2 text-sm ${
+            activeTab === 'chat' ? 'bg-gray-200 font-semibold' : ''
+          }`}
+          onClick={() => setActiveTab('chat')}
+        >
+          Chat
+        </button>
+        <button
+          className={`w-1/2 py-2 text-sm ${
+            activeTab === 'notes' ? 'bg-gray-200 font-semibold' : ''
+          }`}
+          onClick={() => setActiveTab('notes')}
+        >
+          Notes
+        </button>
+      </div>
+
+      {/* Clear Button (hidden on mobile) */}
       <button
         onClick={() => {
           localStorage.removeItem('notiongpt-chat');
           localStorage.removeItem('notiongpt-notes');
           location.reload();
         }}
-        className="absolute top-2 right-4 text-xs underline text-red-500 z-50"
+        className="hidden md:block absolute top-2 right-4 text-xs underline text-red-500 z-50"
       >
         Clear All Data
       </button>
-
-      <div className="border-r flex justify-center items-center">
-        <ChatContainer onNewAIMessage={handleSyncMessageToNotes} />
-      </div>
-      <BlockEditor editor={editor} value={noteValue} onChange={setNoteValue} />
     </div>
   );
 }
-
-export default App;

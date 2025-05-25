@@ -312,22 +312,35 @@ function BlockEditor({ value, onChange, editor }: Props) {
   
 
   return (
-    <div className="h-full w-full p-6 bg-white overflow-auto border-l overflow-auto custom-scroll p-4 h-full">
-      <h2 className="text-xl font-semibold mb-4">📝 Notes</h2>
+    <div className="flex flex-col h-full w-full bg-white border-l">
+      <h2 className="text-xl font-semibold px-4 pt-4">📝 Notes</h2>
+
       <Slate
         editor={editor}
         initialValue={value}
         key={JSON.stringify(value)}
         onChange={onChange}
       >
-        <Toolbar />
-        <Editable
-          renderLeaf={renderLeaf}
-          renderElement={renderElement}
-          placeholder="Type something..."
-          className="outline-none min-h-[300px] text-gray-800"
-          onKeyDown={handleKeyDown(editor, slash)}
-        />
+        {/* Full-height container */}
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {/* Sticky toolbar */}
+          <div className="sticky top-0 z-10 bg-white px-4 py-2 border-b">
+            <Toolbar />
+          </div>
+
+          {/* Scrollable editable content */}
+          <div className="flex-1 overflow-auto px-4 py-4 custom-scroll">
+            <Editable
+              renderLeaf={renderLeaf}
+              renderElement={renderElement}
+              placeholder="Start writing your notes here..."
+              className="outline-none text-gray-800 min-h-full"
+              onKeyDown={handleKeyDown(editor, slash)}
+            />
+          </div>
+        </div>
+
+        {/* Slash command dropdown */}
         {showSlashMenu && (
           <ul
             ref={menuRef}
@@ -358,6 +371,7 @@ function BlockEditor({ value, onChange, editor }: Props) {
       </Slate>
     </div>
   );
+  
 }
 
 export default BlockEditor;

@@ -2,6 +2,14 @@ import { useSlate } from 'slate-react';
 import { cn } from '../../lib/utils';
 import { isMarkActive, toggleMark } from './Marks';
 import { isBlockActive, toggleBlock, type BlockFormat } from './BlockUtils';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+
 import type { MarkFormat } from './MarkFormats';
 import {
   Bold,
@@ -133,66 +141,119 @@ export default function Toolbar() {
   const editor = useSlate();
 
   return (
-    <div className="flex gap-2 mb-4 flex-wrap">
-      {MARKS.map(({ format, label, icon, tooltip }) => {
-        const active = isMarkActive(editor, format);
-        return (
-          <button
-            key={format}
-            title={tooltip}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              toggleMark(editor, format);
-            }}
-            className={cn(
-              'flex items-center gap-1 px-2 py-1 border rounded text-sm',
-              active
-                ? 'bg-black text-white'
-                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-            )}
-          >
-            {icon}
-            <span>{label}</span>
-          </button>
-        );
-      })}
+    <>
+      {/* ✅ Desktop Toolbar */}
+      <div className="hidden sm:flex gap-2 mb-4 flex-wrap">
+        {MARKS.map(({ format, label, icon, tooltip }) => {
+          const active = isMarkActive(editor, format);
+          return (
+            <button
+              key={format}
+              title={tooltip}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                toggleMark(editor, format);
+              }}
+              className={cn(
+                'flex items-center gap-1 px-2 py-1 border rounded text-sm',
+                active
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+              )}
+            >
+              {icon}
+              <span>{label}</span>
+            </button>
+          );
+        })}
 
-      <button
-        title='Code Block (Ctrl+Shift+C)'
-        onMouseDown={(e) => {
-          e.preventDefault();
-          toggleBlock(editor, 'code-block');
-        }}
-        className={cn(
-          'flex items-center gap-1 px-2 py-1 border rounded text-sm',
-          isBlockActive(editor, 'code-block')
-            ? 'bg-black text-white'
-            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-        )}
-      >
-        <FileCode size={16} />
-        <span>Code Block</span>
-      </button>
-
-      {BLOCKS.map(({ format, label, icon, tooltip }) => (
         <button
-          title={tooltip}
-          key={format}
+          title="Code Block (Ctrl+Shift+C)"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleBlock(editor, format);
+            toggleBlock(editor, 'code-block');
           }}
           className={cn(
             'flex items-center gap-1 px-2 py-1 border rounded text-sm',
-            isBlockActive(editor, format)
+            isBlockActive(editor, 'code-block')
               ? 'bg-black text-white'
               : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
           )}
         >
-          {icon}
-          <span>{label}</span>
+          <FileCode size={16} />
+          <span>Code Block</span>
         </button>
-      ))}
-    </div>
+
+        {BLOCKS.map(({ format, label, icon, tooltip }) => {
+          const active = isBlockActive(editor, format);
+          return (
+            <button
+              title={tooltip}
+              key={format}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                toggleBlock(editor, format);
+              }}
+              className={cn(
+                'flex items-center gap-1 px-2 py-1 border rounded text-sm',
+                active
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+              )}
+            >
+              {icon}
+              <span>{label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ✅ Mobile Toolbar */}
+      <div className="flex sm:hidden justify-end mb-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="px-2 py-1 text-sm border rounded">
+            ⋯
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            {MARKS.map(({ format, label, icon }) => {
+              const active = isMarkActive(editor, format);
+              return (
+                <DropdownMenuItem
+                  key={format}
+                  onClick={() => toggleMark(editor, format)}
+                  className={cn(
+                    'flex items-center gap-2',
+                    active && 'bg-gray-100 font-semibold'
+                  )}
+                >
+                  {icon}
+                  {label}
+                </DropdownMenuItem>
+              );
+            })}
+
+            <DropdownMenuSeparator />
+
+            {BLOCKS.map(({ format, label, icon }) => {
+              const active = isBlockActive(editor, format);
+              return (
+                <DropdownMenuItem
+                  key={format}
+                  onClick={() => toggleBlock(editor, format)}
+                  className={cn(
+                    'flex items-center gap-2',
+                    active && 'bg-gray-100 font-semibold'
+                  )}
+                >
+                  {icon}
+                  {label}
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </>
   );
+  
 }
